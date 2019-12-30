@@ -11,7 +11,7 @@ Future<Database> createDatabase() {
           'id INTEGER PRIMARY KEY , '
           'name TEXT, '
           'account_number INTEGER)');
-    }, version: 1);
+    }, version: 1, /*onDowngrade: onDatabaseDowngradeDelete*/);
   });
 }
 
@@ -38,7 +38,8 @@ Future<List<Contact>> findAll() {
           map['name'],
           map['account_number'],
         );
-        debugPrint('numero da conta que foi pesquisado: ' +map['account_number'].toString());
+        debugPrint('numero da conta que foi pesquisado: ' +
+            map['account_number'].toString());
         contacts.add(contact);
       }
       return contacts;
