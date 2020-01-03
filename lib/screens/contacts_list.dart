@@ -10,15 +10,18 @@ class ContactsList extends StatefulWidget {
 
 class _ContactsListState extends State<ContactsList> {
   final Contactdao _dao = Contactdao();
+  
+
   @override
   Widget build(BuildContext context) {
+    final Future<List<Contact>> fullList = _dao.findAll();
     return Scaffold(
       appBar: AppBar(
         title: Text('Contacts'),
       ),
       body: FutureBuilder<List<Contact>>(
         initialData: List(),
-        future: _dao.findAll(),
+        future: fullList,
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
@@ -41,7 +44,8 @@ class _ContactsListState extends State<ContactsList> {
               return ListView.builder(
                 itemBuilder: (context, index) {
                   final Contact contact = contacts[index];
-                  return _ContactItem(contact);
+                  return _ContactItem(contact,
+                      onDelete: () => removeItem(contact));
                 },
                 itemCount: contacts.length,
               );
@@ -63,24 +67,39 @@ class _ContactsListState extends State<ContactsList> {
       ),
     );
   }
+
+  removeItem(Contact contact) {
+    setState(() {
+      _dao.delete(contact);
+    });
+  }
 }
 
 class _ContactItem extends StatelessWidget {
   final Contact contact;
 
-  _ContactItem(this.contact);
+  final VoidCallback onDelete;
+
+  _ContactItem(this.contact, {this.onDelete});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      child: ListTile(
-        title: Text(
-          contact.name,
-          style: TextStyle(fontSize: 24),
-        ),
-        subtitle: Text(
-          contact.accountNumber.toString(),
-          style: TextStyle(fontSize: 16),
+    return GestureDetector(
+      child: Card(
+        child: ListTile(
+          trailing: IconButton(
+            icon: Icon(Icons.delete),
+            onPressed: this.onDelete
+            ,
+          ),
+          title: Text(
+            contact.name,
+            style: TextStyle(fontSize: 24),
+          ),
+          subtitle: Text(
+            contact.accountNumber.toString(),
+            style: TextStyle(fontSize: 16),
+          ),
         ),
       ),
     );
